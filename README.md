@@ -1,8 +1,954 @@
-# Getmemama 
 {
-  "data": {
-    "user": {
-      "avatarUrl": "https://avatars.githubusercontent.com/u/135997372?u=b7cc8de7ec09736aed33cfb1401d4c383d918b13&v=4"
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Account",
+      "version": "0.1.0",
+      "description": "The Red Hat Marketplace Account API provides an interface to manage account profiles.",
+      "termsOfService": "http://ibm.com/terms-of-service",
+      "contact": {
+        "name": "API Support",
+        "url": "http://marketplace.redhat.com/support",
+        "email": "support@redhatmarketplace.com"
+      },
+      "license": {
+        "name": "Apache 2.0",
+        "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+      }
+    },
+    "servers": [
+      {
+        "url": "https://marketplace.redhat.com",
+        "description": "The Red Hat marketplace."
+      }
+    ],
+    "paths": {
+      "/account/api/v1/accounts": {
+        "get": {
+          "summary": "Fetch accounts",
+          "description": "Get a list of accounts by specifying at least one query parameter",
+          "x-curlExamples": {
+            "$ref": "#/components/x-curlExamples/getAccountsExample"
+          },
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/_id"
+            },
+            {
+              "$ref": "#/components/parameters/billingAccountId"
+            },
+            {
+              "$ref": "#/components/parameters/skip"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            },
+            {
+              "$ref": "#/components/parameters/name"
+            },
+            {
+              "$ref": "#/components/parameters/includeNestedLevel"
+            }
+          ],
+          "responses": {
+            "202": {
+              "description": "The message was understood and all events were accepted. The result of the processing is determined by the returned content.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AccountFetchResponse"
+                  }
+                }
+              }
+            },
+            "default": {
+              "description": "Any unrecoverable failure, the platform will give up sending the event"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "_id": {
+          "name": "_id",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "required": false,
+          "description": "identifier of account to fetch"
+        },
+        "billingAccountId": {
+          "name": "billingAccountId",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "required": false,
+          "description": "billingAccount identifier of account(s) to fetch, use comma delimited for multiple (eg. billingAccountId=123,321)"
+        },
+        "skip": {
+          "name": "skip",
+          "in": "query",
+          "schema": {
+            "type": "number"
+          },
+          "required": false,
+          "description": "number of records to skip in results"
+        },
+        "limit": {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "number"
+          },
+          "required": false,
+          "description": "number of records to show in results (max 100)"
+        },
+        "name": {
+          "name": "name",
+          "in": "query",
+          "schema": {
+            "type": "string"
+          },
+          "required": false,
+          "description": "company name of account to fetch"
+        },
+        "includeNestedLevel": {
+          "name": "includeNestedLevel",
+          "in": "query",
+          "schema": {
+            "type": "number"
+          },
+          "required": false,
+          "description": "level of user details to fetch (eg. includeNestedLevel=1 for user role, includeNestedLevel=2 for detailed user data)"
+        }
+      },
+      "schemas": {
+        "billingAddress": {
+          "type": "object",
+          "description": "Billing address of the account",
+          "properties": {
+            "companyName": {
+              "type": "string",
+              "description": "Name of the company"
+            },
+            "firstName": {
+              "type": "string",
+              "description": "First name of the billing address"
+            },
+            "lastName": {
+              "type": "string",
+              "description": "Last name of the billing address"
+            },
+            "address1": {
+              "type": "string",
+              "description": "Address line 1 of the billing address"
+            },
+            "address2": {
+              "type": "string",
+              "description": "Address line 2 of the billing address"
+            },
+            "city": {
+              "type": "string",
+              "description": "City of the billing address"
+            },
+            "stateProvince": {
+              "type": "string",
+              "description": "State/Province of the billing address"
+            },
+            "postalCode": {
+              "type": "string",
+              "description": "Postal/Zip code of the billing address"
+            },
+            "phoneNumber": {
+              "type": "string",
+              "description": "Phone number of the billing address"
+            },
+            "countryCode": {
+              "type": "string",
+              "description": "Country code of the billing address"
+            }
+          },
+          "example": {
+            "companyName": "ABC Test Company",
+            "firstName": "John",
+            "lastName": "Doe",
+            "address1": "123 Test Street",
+            "address2": "Suite 456",
+            "city": "New York",
+            "stateProvince": "New York",
+            "postalCode": "10001",
+            "phoneNumber": "(123)4567890",
+            "countryCode": "US"
+          }
+        },
+        "paymentInfo": {
+          "type": "object",
+          "description": "Payment info of the account",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "ID of the payment record"
+            },
+            "type": {
+              "type": "string",
+              "description": "Type of payment - can be Invoice or Credit Card"
+            },
+            "isDefault": {
+              "type": "boolean",
+              "description": "True if this is the default payment method"
+            },
+            "cardType": {
+              "type": "string",
+              "description": "Type of credit card"
+            },
+            "scrambledNumber": {
+              "type": "string",
+              "description": "Masked credit card number showing last 4 digits only"
+            },
+            "expiryDate": {
+              "type": "string",
+              "description": "Expiry date MMYY of credit card"
+            },
+            "customerNumber": {
+              "type": "string",
+              "description": "Customer number for Invoice payment method"
+            },
+            "poNumber": {
+              "type": "string",
+              "description": "PO number for Invoice payment method"
+            },
+            "verified": {
+              "type": "boolean",
+              "description": "True if payment method has been verified"
+            },
+            "walletId": {
+              "type": "string",
+              "description": "Wallet ID corresponding to the payment method"
+            },
+            "accountId": {
+              "type": "string",
+              "description": "Account ID corresponding to the payment method"
+            }
+          },
+          "example": [
+            {
+              "_id": "5f982c6b7fb6b5e2d31214ee",
+              "type": "CREDIT_CARD",
+              "isDefault": false,
+              "cardType": "VISA",
+              "scrambledNumber": "****1234",
+              "expiryDate": "1123",
+              "verified": true,
+              "walletId": "61ef13f0185f11eb8d4b35c4e7bebf44",
+              "accountId": "5f982b957fb6b5e2d31214eb"
+            },
+            {
+              "_id": "5f5fc8c63f033142e62553b5",
+              "type": "INVOICE",
+              "isDefault": true,
+              "customerNumber": "12345",
+              "poNumber": "54321",
+              "verified": true,
+              "accountId": "5f5fc8c63f033142e62553b4"
+            }
+          ]
+        },
+        "vendorLegalAddress": {
+          "type": "object",
+          "description": "The legal address for the vendor account",
+          "properties": {
+            "companyName": {
+              "type": "string",
+              "description": "Name of the company"
+            },
+            "firstName": {
+              "type": "string",
+              "description": "First name of the vendor legal address"
+            },
+            "lastName": {
+              "type": "string",
+              "description": "Last name of the vendor legal address"
+            },
+            "address1": {
+              "type": "string",
+              "description": "Address line 1 of the vendor legal address"
+            },
+            "address2": {
+              "type": "string",
+              "description": "Address line 2 of the vendor legal address"
+            },
+            "city": {
+              "type": "string",
+              "description": "City of the vendor legal address"
+            },
+            "stateProvince": {
+              "type": "string",
+              "description": "State/Province of the vendor legal address"
+            },
+            "postalCode": {
+              "type": "string",
+              "description": "Postal/Zip code of the vendor legal address"
+            },
+            "phoneNumber": {
+              "type": "string",
+              "description": "Phone number of the vendor legal address"
+            },
+            "countryCode": {
+              "type": "string",
+              "description": "Country code of the vendor legal address"
+            }
+          },
+          "example": {
+            "companyName": "ABC Vendor Company",
+            "firstName": "Jane",
+            "lastName": "Doe",
+            "address1": "123 Test Street",
+            "address2": "Suite 456",
+            "city": "New York",
+            "stateProvince": "New York",
+            "postalCode": "10001",
+            "phoneNumber": "(123)4567890",
+            "countryCode": "US"
+          }
+        },
+        "vendorAccount": {
+          "type": "object",
+          "description": "Vendor details if a vendor account",
+          "properties": {
+            "addressVerified": {
+              "type": "boolean",
+              "description": "True if address is verified"
+            },
+            "vendorLegalAddress": {
+              "$ref": "#/components/schemas/vendorLegalAddress"
+            },
+            "vatNumber": {
+              "type": "string",
+              "description": "VAT number for the vendor account"
+            },
+            "taxCode": {
+              "type": "string",
+              "description": "Tax code for the vendor account"
+            },
+            "vendorType": {
+              "type": "string",
+              "description": "Type of the vendor, can be IBM or ISV",
+              "enum": ["IBM", "ISV"]
+            }
+          },
+          "example": {
+            "addressVerified": true,
+            "vendorLegalAddress": {
+              "companyName": "ABC Vendor Company",
+              "firstName": "Jane",
+              "lastName": "Doe",
+              "address1": "123 Test Street",
+              "address2": "Suite 456",
+              "city": "New York",
+              "stateProvince": "New York",
+              "postalCode": "10001",
+              "phoneNumber": "(123)4567890",
+              "countryCode": "US"
+            },
+            "vatNumber": "12345",
+            "taxCode": "123",
+            "billingAccountId": "ACCT000004261",
+            "billingAccountRefs": {
+              "zuoraAccountId": "2c92c0fb72e0de460172f21985ae6d5a",
+              "sapSiteNumber": "0004134380",
+              "ibmCustomerNumber": "1990789",
+              "mppNumber": "0198098765"
+            },
+            "vendorType": "IBM"
+          }
+        },
+        "OMUser": {
+          "type": "object",
+          "description": "Details of the user, only shown when includeNestedLevel=2",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "The ID of the user record"
+            },
+            "iamId": {
+              "type": "string",
+              "description": "Cloud IAM ID of the user"
+            },
+            "emailAddress": {
+              "type": "string",
+              "description": "Email address of the user"
+            },
+            "firstName": {
+              "type": "string",
+              "description": "First name of the user"
+            },
+            "lastName": {
+              "type": "string",
+              "description": "Last name of the user"
+            },
+            "preferredLanguage": {
+              "type": "string",
+              "description": "Preferred language of the user"
+            }
+          },
+          "example": {
+            "_id": "5f982b957fb6b5e2d31214ec",
+            "iamId": "IBMid-550009CTNC",
+            "emailAddress": "test@mail.test.ibm.com",
+            "firstName": "Userfirstname",
+            "lastName": "Userlastname",
+            "preferredLanguage": "en-us"
+          }
+        },
+        "OMRoles": {
+          "type": "object",
+          "description": "Roles of the users of the account",
+          "properties": {
+            "userId": {
+              "type": "string",
+              "description": "The ID of the user record, only shown when includeNestedLevel=1"
+            },
+            "roleName": {
+              "type": "string",
+              "description": "The role of the user",
+              "enum": [
+                "AccountOwner",
+                "AccountMember",
+                "AccountAdmin",
+                "ClusterAdmin",
+                "Purchaser",
+                "VendorProductAdmin",
+                "VendorSalesAdmin",
+                "VendorLegalAdmin",
+                "Partner"
+              ]
+            },
+            "OMUser": {
+              "$ref": "#/components/schemas/OMUser"
+            }
+          },
+          "example": [
+            {
+              "userId": "5f982b957fb6b5e2d31214ec",
+              "roleName": "AccountOwner"
+            },
+            {
+              "roleName": "Purchaser",
+              "OMUser": {
+                "_id": "5f982b957fb6b5e2d31214ec",
+                "iamId": "IBMid-550009CTNC",
+                "emailAddress": "test@mail.test.ibm.com",
+                "firstName": "Userfirstname",
+                "lastName": "Userlastname",
+                "preferredLanguage": "en-us"
+              }
+            }
+          ]
+        },
+        "theme": {
+          "type": "object",
+          "description": "Theme details of the EM enabled account",
+          "properties": {
+            "primary": {
+              "type": "string",
+              "description": "Primary background color (in hex) for the EM enabled account"
+            },
+            "secondary": {
+              "type": "string",
+              "description": "Generated gradient background color (in hex) for the EM enabled account"
+            },
+            "fontColor": {
+              "type": "string",
+              "description": "Generated font color (in hex) for the EM enabled account"
+            }
+          },
+          "example": {
+            "primary": "#ABC123",
+            "secondary": "#321DEF",
+            "fontColor": "#000000"
+          }
+        },
+        "enterpriseMarketplace": {
+          "type": "object",
+          "description": "Details of the enterprise marketplace account",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Display name of the EM enabled account"
+            },
+            "theme": {
+              "$ref": "#/components/schemas/theme"
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "True if EM account is enabled"
+            }
+          },
+          "example": {
+            "name": "ABC Test Company",
+            "theme": {
+              "primary": "#ABC123",
+              "secondary": "#321DEF",
+              "fontColor": "#000000"
+            },
+            "enabled": true
+          }
+        },
+        "billingAccountRefs": {
+          "type": "object",
+          "description": "Billing references of the account",
+          "properties": {
+            "zuoraAccountId": {
+              "type": "string",
+              "description": "Reference to zuora account ID"
+            },
+            "sapSiteNumber": {
+              "type": "string",
+              "description": "Reference to SAP site number"
+            },
+            "ibmCustomerNumber": {
+              "type": "string",
+              "description": "Reference to IBM customer number (ICN)"
+            },
+            "mppNumber": {
+              "type": "string",
+              "description": "Reference to MPP number"
+            }
+          },
+          "example": {
+            "zuoraAccountId": "2c92c0fb72e0de460172f21985ae6d5a",
+            "sapSiteNumber": "0004134380",
+            "ibmCustomerNumber": "1990789",
+            "mppNumber": "0198098765"
+          }
+        },
+        "accountCreationStatus": {
+          "type": "object",
+          "description": "Creation status of the account",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "ID of the account create record"
+            },
+            "accountId": {
+              "type": "string",
+              "description": "The account ID for the account"
+            },
+            "updatedOn": {
+              "type": "string",
+              "description": "Last update timestamp of the account"
+            },
+            "lastProcessingAttempt": {
+              "type": "string",
+              "description": "Last processing attempt of the account"
+            },
+            "stuckAlert": {
+              "type": "boolean",
+              "description": "Flag for stuck account"
+            },
+            "zuora": {
+              "type": "boolean",
+              "description": "Flag for zuora account"
+            },
+            "customerCreate": {
+              "type": "boolean",
+              "description": "Flag for customer create account"
+            },
+            "icn": {
+              "type": "boolean",
+              "description": "Flag for ICN"
+            },
+            "orderContainer": {
+              "type": "boolean",
+              "description": "Flag for order container"
+            }
+          },
+          "example": {
+            "_id": "2c92c0fb72e0de460172f21985ae6d5a",
+            "accountId": "5ee98dd2790490b6281a2402",
+            "updatedOn": "2020-06-17T03:28:18.050Z",
+            "lastProcessingAttempt": "2020-06-17T03:28:18.050Z",
+            "stuckAlert": false,
+            "zuora": true,
+            "customerCreate": true,
+            "icn": true,
+            "orderContainer": true
+          }
+        },
+        "OMAccounts": {
+          "type": "object",
+          "description": "An array of matching accounts",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "ID of the account record"
+            },
+            "name": {
+              "type": "string",
+              "description": "Company name of the account"
+            },
+            "isCompany": {
+              "type": "boolean",
+              "description": "True if a company account"
+            },
+            "billingAccountId": {
+              "type": "string",
+              "description": "Billing account ID of the account"
+            },
+            "billingAddress": {
+              "$ref": "#/components/schemas/billingAddress"
+            },
+            "vatNumber": {
+              "type": "string",
+              "description": "VAT number of the account"
+            },
+            "taxCode": {
+              "type": "string",
+              "description": "Tax code of the account"
+            },
+            "status": {
+              "type": "string",
+              "description": "Status of the account",
+              "enum": ["PENDING", "ACTIVE", "SUSPENDED"]
+            },
+            "vendorStatus": {
+              "type": "string",
+              "description": "Status of the vendor account",
+              "enum": ["PENDING", "ACTIVE", "SUSPENDED"]
+            },
+            "billingAccountRefs": {
+              "$ref": "#/components/schemas/billingAccountRefs"
+            },
+            "isCustomer": {
+              "type": "boolean",
+              "description": "True if account is type customer"
+            },
+            "isVendor": {
+              "type": "boolean",
+              "description": "True if account is type vendor"
+            },
+            "partnerConnectId": {
+              "type": "string",
+              "description": "Partner connect ID of the account"
+            },
+            "accountRHIdLink": {
+              "type": "string",
+              "description": "Red Hat ID linked to the account"
+            },
+            "loginRHIdLink": {
+              "type": "string",
+              "description": "Red Hat login linked to the account"
+            },
+            "companyRef": {
+              "type": "string",
+              "description": "Reference to the ID record of the corresponding company for the account"
+            },
+            "vendorAccount": {
+              "$ref": "#/components/schemas/vendorAccount"
+            },
+            "bssAccountId": {
+              "type": "string",
+              "description": "BSS account ID of the account"
+            },
+            "createdAt": {
+              "type": "string",
+              "description": "Created at timestamp of the account"
+            },
+            "paymentInfo": {
+              "type": "array",
+              "description": "An array of payment information objects.",
+              "items": {
+                "$ref": "#/components/schemas/paymentInfo"
+              }
+            },
+            "accountCreationStatus": {
+              "$ref": "#/components/schemas/accountCreationStatus"
+            },
+            "OMRoles": {
+              "type": "array",
+              "description": "Roles of the users of the account",
+              "items": {
+                "$ref": "#/components/schemas/OMRoles"
+              }
+            },
+            "enterpriseMarketplace": {
+              "$ref": "#/components/schemas/enterpriseMarketplace"
+            },
+            "isTaxExempt": {
+              "type": "boolean",
+              "description": "True if account is tax exempt"
+            }
+          },
+          "example": {
+            "_id": "5ee98dd2790490b6281a2402",
+            "name": "ABC Account",
+            "isCompany": true,
+            "billingAccountId": "ACCT000004261",
+            "billingAddress": {
+              "companyName": "ABC Test Company",
+              "firstName": "John",
+              "lastName": "Doe",
+              "address1": "123 Test Street",
+              "address2": "Suite 456",
+              "city": "New York",
+              "stateProvince": "New York",
+              "postalCode": "10001",
+              "phoneNumber": "(123)4567890",
+              "countryCode": "US"
+            },
+            "vatNumber": "12345",
+            "taxCode": "123",
+            "status": "PENDING",
+            "vendorStatus": "PENDING",
+            "billingAccountRefs": {
+              "zuoraAccountId": "2c92c0fb72e0de460172f21985ae6d5a",
+              "sapSiteNumber": "0004134380",
+              "ibmCustomerNumber": "1990789",
+              "mppNumber": "0198098765"
+            },
+            "isCustomer": true,
+            "isVendor": true,
+            "partnerConnectId": "12345",
+            "accountRHIdLink": "13337759",
+            "loginRHIdLink": "redHatuserLogin",
+            "companyRef": "5ee39b052ea9a08821470e4a",
+            "vendorAccount": {
+              "addressVerified": true,
+              "vendorLegalAddress": {
+                "companyName": "ABC Vendor Company",
+                "firstName": "Jane",
+                "lastName": "Doe",
+                "address1": "123 Test Street",
+                "address2": "Suite 456",
+                "city": "New York",
+                "stateProvince": "New York",
+                "postalCode": "10001",
+                "phoneNumber": "(123)4567890",
+                "countryCode": "US"
+              },
+              "vatNumber": "12345",
+              "taxCode": "123",
+              "vendorType": "IBM"
+            },
+            "bssAccountId": "OMP-2f88191ae209449aae23884437c8c36b",
+            "createdAt": "2020-06-17T03:28:18.050Z",
+            "paymentInfo": [
+              {
+                "_id": "5f982c6b7fb6b5e2d31214ee",
+                "type": "INVOICE",
+                "isDefault": true,
+                "customerNumber": "12345",
+                "poNumber": "54321",
+                "verified": true,
+                "accountId": "5f982b957fb6b5e2d31214eb"
+              }
+            ],
+            "accountCreationStatus": {
+              "_id": "2c92c0fb72e0de460172f21985ae6d5a",
+              "accountId": "5ee98dd2790490b6281a2402",
+              "updatedOn": "2020-06-17T03:28:18.050Z",
+              "lastProcessingAttempt": "2020-06-17T03:28:18.050Z",
+              "stuckAlert": false,
+              "zuora": true,
+              "customerCreate": true,
+              "icn": true,
+              "orderContainer": true
+            },
+            "OMRoles": [
+              {
+                "userId": "5f7dcdce501cf8bcadc40c54",
+                "roleName": "AccountOwner"
+              },
+              {
+                "userId": "5f7de18b501cf8bcadc40c56",
+                "roleName": "AccountMember"
+              },
+              {
+                "userId": "5f7de18b501cf8bcadc40c56",
+                "roleName": "Purchaser"
+              },
+              {
+                "userId": "5f7de18b501cf8bcadc40c56",
+                "roleName": "ClusterAdmin"
+              }
+            ],
+            "enterpriseMarketplace": {
+              "name": "ABC Test Company",
+              "theme": {
+                "primary": "#ABC123",
+                "secondary": "#321DEF",
+                "fontColor": "#000000"
+              },
+              "enabled": true
+            },
+            "isTaxExempt": false
+          }
+        },
+        "AccountFetchResponse": {
+          "type": "object",
+          "properties": {
+            "totalResults": {
+              "type": "number",
+              "description": "Total accounts returned"
+            },
+            "OMAccounts": {
+              "type": "array",
+              "description": "An array of matching accounts",
+              "items": {
+                "$ref": "#/components/schemas/OMAccounts"
+              }
+            }
+          },
+          "example": {
+            "totalResults": 1,
+            "OMAccounts": [
+              {
+                "_id": "5ee98dd2790490b6281a2402",
+                "name": "ABC Account",
+                "isCompany": true,
+                "billingAccountId": "ACCT000004261",
+                "billingAddress": {
+                  "companyName": "ABC Test Company",
+                  "firstName": "John",
+                  "lastName": "Doe",
+                  "address1": "123 Test Street",
+                  "address2": "Suite 456",
+                  "city": "New York",
+                  "stateProvince": "New York",
+                  "postalCode": "10001",
+                  "phoneNumber": "(123)4567890",
+                  "countryCode": "US"
+                },
+                "vatNumber": "12345",
+                "taxCode": "123",
+                "status": "PENDING",
+                "vendorStatus": "PENDING",
+                "billingAccountRefs": {
+                  "zuoraAccountId": "2c92c0fb72e0de460172f21985ae6d5a",
+                  "sapSiteNumber": "0004134380",
+                  "ibmCustomerNumber": "1990789",
+                  "mppNumber": "0198098765"
+                },
+                "isCustomer": true,
+                "isVendor": true,
+                "partnerConnectId": "12345",
+                "accountRHIdLink": "13337759",
+                "loginRHIdLink": "redHatuserLogin",
+                "companyRef": "5ee39b052ea9a08821470e4a",
+                "vendorAccount": {
+                  "addressVerified": true,
+                  "vendorLegalAddress": {
+                    "companyName": "ABC Vendor Company",
+                    "firstName": "Jane",
+                    "lastName": "Doe",
+                    "address1": "123 Test Street",
+                    "address2": "Suite 456",
+                    "city": "New York",
+                    "stateProvince": "New York",
+                    "postalCode": "10001",
+                    "phoneNumber": "(123)4567890",
+                    "countryCode": "US"
+                  },
+                  "vatNumber": "12345",
+                  "taxCode": "123",
+                  "vendorType": "IBM"
+                },
+                "bssAccountId": "OMP-2f88191ae209449aae23884437c8c36b",
+                "createdAt": "2020-06-17T03:28:18.050Z",
+                "paymentInfo": [
+                  {
+                    "_id": "5f982c6b7fb6b5e2d31214ee",
+                    "type": "CREDIT_CARD",
+                    "isDefault": true,
+                    "cardType": "VISA",
+                    "scrambledNumber": "****1234",
+                    "expiryDate": "1123",
+                    "verified": true,
+                    "walletId": "61ef13f0185f11eb8d4b35c4e7bebf44",
+                    "accountId": "5f982b957fb6b5e2d31214eb"
+                  },
+                  {
+                    "_id": "5f99f2aa7fb6b5e2d31214f6",
+                    "type": "CREDIT_CARD",
+                    "isDefault": false,
+                    "cardType": "MASTERCARD",
+                    "scrambledNumber": "****1111",
+                    "expiryDate": "0123",
+                    "walletId": "61ef13f0185f11eb8d4b35c4e7bebf44",
+                    "accountId": "5f982b957fb6b5e2d31214eb"
+                  }
+                ],
+                "accountCreationStatus": {
+                  "_id": "2c92c0fb72e0de460172f21985ae6d5a",
+                  "accountId": "5ee98dd2790490b6281a2402",
+                  "updatedOn": "2020-06-17T03:28:18.050Z",
+                  "lastProcessingAttempt": "2020-06-17T03:28:18.050Z",
+                  "stuckAlert": false,
+                  "zuora": true,
+                  "customerCreate": true,
+                  "icn": true,
+                  "orderContainer": true
+                },
+                "OMRoles": [
+                  {
+                    "roleName": "AccountOwner",
+                    "OMUser": {
+                      "_id": "5f7dcdce501cf8bcadc40c54",
+                      "iamId": "IBMid-55000950RA",
+                      "emailAddress": "test@mail.test.ibm.com",
+                      "firstName": "Userfirstname",
+                      "lastName": "Userlastname",
+                      "preferredLanguage": "en-us"
+                    }
+                  },
+                  {
+                    "roleName": "AccountMember",
+                    "OMUser": {
+                      "_id": "5f7de18b501cf8bcadc40c56",
+                      "iamId": "IBMid-55000951R4",
+                      "emailAddress": "test1@mail.test.ibm.com",
+                      "firstName": "Userfirstname1",
+                      "lastName": "Userlastname1",
+                      "preferredLanguage": "en-us"
+                    }
+                  }
+                ],
+                "enterpriseMarketplace": {
+                  "name": "ABC Test Company",
+                  "theme": {
+                    "primary": "#ABC123",
+                    "secondary": "#321DEF",
+                    "fontColor": "#000000"
+                  },
+                  "enabled": true
+                },
+                "isTaxExempt": false
+              }
+            ]
+          }
+        }
+      },
+      "x-curlExamples": {
+        "getAccountsExample": {
+          "curl": "curl --location --request GET '/account/api/v1/accounts?5ee98dd2790490b6281a2402 \\",
+          "options": [
+            "--header 'Content-Type: application/json' \\",
+            "--header 'Authorization: Bearer ACCESS_TOKEN' \\"
+          ]
+        }
+      }
+    },
+    "security": [],
+    "tags": [
+      {
+        "name": "Marketplace API"
+      }
+    ],
+    "externalDocs": {
+      "description": "Read more here",
+      "url": "https://marketplace.redhat.com/documentation"
     }
   }
-}
+  
