@@ -1,2 +1,1 @@
 # Getmemama
-No bigat ton
